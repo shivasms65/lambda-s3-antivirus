@@ -14,8 +14,11 @@ const S3 = new AWS.S3();
  */
 function updateAVDefinitonsWithFreshclam() {
     try {
+        utils.generateSystemMessage(`Executing download...`);
+        utils.generateSystemMessage(`${constants.PATH_TO_FRESHCLAM} --config-file=${constants.FRESHCLAM_CONFIG} --datadir=${constants.FRESHCLAM_WORK_DIR}`);
+
         let executionResult = execSync(`${constants.PATH_TO_FRESHCLAM} --config-file=${constants.FRESHCLAM_CONFIG} --datadir=${constants.FRESHCLAM_WORK_DIR}`);
-        
+
         utils.generateSystemMessage('Update message');
         console.log(executionResult.toString());
 
@@ -74,7 +77,9 @@ async function uploadAVDefinitions() {
 
     const uploadPromises = constants.CLAMAV_DEFINITIONS_FILES.map((filenameToUpload) => {
         return new Promise((resolve, reject) => {
-            utils.generateSystemMessage(`Uploading updated definitions for file ${filenameToUpload} ---`);
+            utils.generateSystemMessage(`Uploading file...`);
+            utils.generateSystemMessage(`Bucket ${constants.CLAMAV_BUCKET_NAME}`);
+            utils.generateSystemMessage(`Key ${constants.PATH_TO_AV_DEFINITIONS}/${filenameToUpload}`);
 
             let options = {
                 Bucket: constants.CLAMAV_BUCKET_NAME,
@@ -112,6 +117,8 @@ async function uploadAVDefinitions() {
  */
 function scanLocalFile(pathToFile) {
     try {
+        utils.generateSystemMessage("Starting Scanning")
+        utils.generateSystemMessage(`${constants.PATH_TO_CLAMAV} -v -a --stdout -d /tmp/ '/tmp/download/${pathToFile}'`);
         let result = execSync(`${constants.PATH_TO_CLAMAV} -v -a --stdout -d /tmp/ '/tmp/download/${pathToFile}'`);
 
         utils.generateSystemMessage('SUCCESSFUL SCAN, FILE CLEAN');
